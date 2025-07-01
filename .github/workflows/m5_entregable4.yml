@@ -44,9 +44,17 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Extract name and version from pyproject.toml
+        id: get_meta
+        run: |
+          NAME=$(grep -m 1 '^name' pyproject.toml | sed 's/name = \"//;s/\"//')
+          VERSION=$(grep -m 1 '^version' pyproject.toml | sed 's/version = \"//;s/\"//')
+          echo "NAME=$NAME" >> $GITHUB_ENV
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/your-image-name:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.NAME }}:${{ env.VERSION }}
