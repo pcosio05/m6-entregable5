@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Stories</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .user-story {
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #fafafa;
+        }
+        .user-story h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .user-story p {
+            margin: 5px 0;
+            color: #555;
+        }
+        .user-story .priority {
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        .priority.low { background-color: #d4edda; color: #155724; }
+        .priority.medium { background-color: #fff3cd; color: #856404; }
+        .priority.high { background-color: #f8d7da; color: #721c24; }
+        .priority.blocking { background-color: #f5c6cb; color: #721c24; }
+        .buttons {
+            margin-top: 15px;
+        }
+        .btn {
+            padding: 8px 16px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-warning {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        .btn:hover {
+            opacity: 0.8;
+        }
+        .new-user-story {
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px dashed #ddd;
+            border-radius: 5px;
+        }
+        .new-user-story h3 {
+            margin-top: 0;
+            color: #666;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+            min-height: 100px;
+        }
+        .form-group button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .form-group button:hover {
+            background-color: #0056b3;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>User Stories Management</h1>
+        
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-number">{{ user_stories|length }}</div>
+                <div class="stat-label">Total User Stories</div>
+            </div>
+        </div>
+
+        <div class="new-user-story">
+            <h3>Generate New User Story</h3>
+            <form id="newUserStoryForm">
+                <div class="form-group">
+                    <label for="prompt">Describe the feature you want to create:</label>
+                    <textarea id="prompt" name="prompt" placeholder="Example: As a user, I want to be able to reset my password so that I can access my account if I forget my credentials." required></textarea>
+                </div>
+                <div class="form-group">
+                    <button type="submit">Generate User Story</button>
+                </div>
+            </form>
+        </div>
+
+        <h2>User Stories</h2>
+        {% if user_stories %}
+            {% for user_story in user_stories %}
+            <div class="user-story">
+                <h3>{{ user_story.project }}</h3>
+                <p><strong>Role:</strong> {{ user_story.rol }}</p>
+                <p><strong>Goal:</strong> {{ user_story.goal }}</p>
+                <p><strong>Reason:</strong> {{ user_story.reason }}</p>
+                <p><strong>Description:</strong> {{ user_story.description }}</p>
+                <p><strong>Priority:</strong> <span class="priority {{ user_story.priority }}">{{ user_story.priority }}</span></p>
+                <p><strong>Story Points:</strong> {{ user_story.story_points }}</p>
+                <p><strong>Effort Hours:</strong> {{ user_story.effort_hours }}</p>
+                <p><strong>Created:</strong> {{ user_story.created_at.strftime('%Y-%m-%d %H:%M:%S') if user_story.created_at else 'N/A' }}</p>
+                
+                <div class="buttons">
+                    <a href="/user-stories/{{ user_story.id }}/tasks" class="btn btn-primary">View Tasks</a>
+                    <button onclick="generateTasks('{{ user_story.id }}')" class="btn btn-success">Generate Tasks</button>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>No user stories found. Create your first user story above!</p>
+        {% endif %}
+    </div>
+
+    <script>
+        document.getElementById('newUserStoryForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const prompt = document.getElementById('prompt').value;
+            
+            fetch('/ai/user-stories', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ prompt: prompt })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                } else {
+                    alert('User story created successfully!');
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error creating user story');
+            });
+        });
+
+        function generateTasks(userStoryId) {
+            fetch(`/ai/user-stories/${userStoryId}/generate_tasks`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                } else {
+                    alert(`Generated ${data.length} tasks successfully!`);
+                    window.location.href = `/user-stories/${userStoryId}/tasks`;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error generating tasks');
+            });
+        }
+    </script>
+</body>
+</html> 

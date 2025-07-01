@@ -1,0 +1,45 @@
+### Variables
+@baseUrl = http://localhost:5000
+
+### 1. Generate User Story with AI
+POST {{baseUrl}}/ai/user-stories
+Content-Type: application/json
+
+{
+    "prompt": "As a customer, I want to reset my password so that I can access my account if I forget my credentials"
+}
+
+### 2. Generate Tasks from User Story
+# Replace {user_story_id} with an actual user story ID
+POST {{baseUrl}}/ai/user-stories/{user_story_id}/generate_tasks
+
+### 3. Get User Stories Dashboard (Web Interface)
+GET {{baseUrl}}/user-stories
+
+### 4. Get Tasks for a Specific User Story (Web Interface)
+# Replace {user_story_id} with an actual user story ID
+GET {{baseUrl}}/user-stories/{user_story_id}/tasks
+
+### 5. Example: Generate User Story for E-commerce Search
+POST {{baseUrl}}/ai/user-stories
+Content-Type: application/json
+
+{
+    "prompt": "As a user, I want to search for products so that I can find what I need quickly"
+}
+
+### 6. Example: Generate User Story for Payment Processing
+POST {{baseUrl}}/ai/user-stories
+Content-Type: application/json
+
+{
+    "prompt": "As a customer, I want to pay for my order using multiple payment methods so that I have flexibility in how I pay"
+}
+
+### 7. Example: Generate User Story for Order Tracking
+POST {{baseUrl}}/ai/user-stories
+Content-Type: application/json
+
+{
+    "prompt": "As a customer, I want to track my order status so that I know when my package will arrive"
+}

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasks for User Story</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .user-story-info {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .user-story-info h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .user-story-info p {
+            margin: 5px 0;
+            color: #555;
+        }
+        .task {
+            border: 1px solid #ddd;
+            margin-bottom: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #fafafa;
+        }
+        .task h4 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .task p {
+            margin: 5px 0;
+            color: #555;
+        }
+        .task .priority {
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        .priority.low { background-color: #d4edda; color: #155724; }
+        .priority.medium { background-color: #fff3cd; color: #856404; }
+        .priority.high { background-color: #f8d7da; color: #721c24; }
+        .priority.blocking { background-color: #f5c6cb; color: #721c24; }
+        .task .status {
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        .status.pending { background-color: #e2e3e5; color: #383d41; }
+        .status.in_progress { background-color: #cce5ff; color: #004085; }
+        .status.in_review { background-color: #fff3cd; color: #856404; }
+        .status.completed { background-color: #d4edda; color: #155724; }
+        .task .category {
+            font-weight: bold;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            background-color: #007bff;
+            color: white;
+        }
+        .back-button {
+            margin-bottom: 20px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn:hover {
+            opacity: 0.8;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+        .no-tasks {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="back-button">
+            <a href="/user-stories" class="btn btn-primary">← Back to User Stories</a>
+        </div>
+
+        <h1>Tasks for User Story</h1>
+
+        {% if user_story %}
+        <div class="user-story-info">
+            <h3>{{ user_story.project }}</h3>
+            <p><strong>Role:</strong> {{ user_story.rol }}</p>
+            <p><strong>Goal:</strong> {{ user_story.goal }}</p>
+            <p><strong>Reason:</strong> {{ user_story.reason }}</p>
+            <p><strong>Description:</strong> {{ user_story.description }}</p>
+            <p><strong>Priority:</strong> <span class="priority {{ user_story.priority }}">{{ user_story.priority }}</span></p>
+            <p><strong>Story Points:</strong> {{ user_story.story_points }}</p>
+            <p><strong>Effort Hours:</strong> {{ user_story.effort_hours }}</p>
+        </div>
+        {% endif %}
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-number">{{ tasks|length }}</div>
+                <div class="stat-label">Total Tasks</div>
+            </div>
+        </div>
+
+        {% if tasks %}
+            {% for task in tasks %}
+            <div class="task">
+                <h4>{{ task.title }}</h4>
+                <p><strong>Description:</strong> {{ task.description }}</p>
+                <p><strong>Priority:</strong> <span class="priority {{ task.priority }}">{{ task.priority }}</span></p>
+                <p><strong>Status:</strong> <span class="status {{ task.status.replace(' ', '_') }}">{{ task.status }}</span></p>
+                <p><strong>Category:</strong> <span class="category">{{ task.category }}</span></p>
+                <p><strong>Assigned To:</strong> {{ task.assigned_to }}</p>
+                <p><strong>Effort Hours:</strong> {{ task.effort_hours }}</p>
+                {% if task.risk_analysis %}
+                <p><strong>Risk Analysis:</strong> {{ task.risk_analysis }}</p>
+                {% endif %}
+                {% if task.risk_mitigation %}
+                <p><strong>Risk Mitigation:</strong> {{ task.risk_mitigation }}</p>
+                {% endif %}
+                <p><strong>Created:</strong> {{ task.created_at.strftime('%Y-%m-%d %H:%M:%S') if task.created_at else 'N/A' }}</p>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-tasks">
+                <h3>No tasks found for this user story</h3>
+                <p>Click the "Generate Tasks" button on the user stories page to create tasks for this user story.</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html> 
