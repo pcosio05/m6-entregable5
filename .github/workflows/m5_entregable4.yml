@@ -47,8 +47,9 @@ jobs:
       - name: Extract name and version from pyproject.toml
         id: get_meta
         run: |
-          NAME=$(grep -m 1 '^name' pyproject.toml | sed 's/name = \"//;s/\"//')
-          VERSION=$(grep -m 1 '^version' pyproject.toml | sed 's/version = \"//;s/\"//')
+          pip install toml
+          NAME=$(python -c "import toml; print(toml.load('pyproject.toml')['project']['name'])")
+          VERSION=$(python -c "import toml; print(toml.load('pyproject.toml')['project']['version'])")
           echo "NAME=$NAME" >> $GITHUB_ENV
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
