@@ -1,9 +1,9 @@
 services:
-  db:
+  mysql:
     image: mysql:8.0
     restart: always
     environment:
-      MYSQL_DATABASE: m4_entregable3
+      MYSQL_DATABASE: entregable4
       MYSQL_USER: user
       MYSQL_PASSWORD: password
       MYSQL_ROOT_PASSWORD: rootpassword
@@ -11,5 +11,17 @@ services:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
+#   alpine:
+#     image: alpine:latest
+#     command: sleep 36000
+  m5-entregable4:
+    image: pcosio05/m5-entregable4:0.0.1
+    restart: always
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      AZURE_OPENAI_ENDPOINT: ${AZURE_OPENAI_ENDPOINT}
+      AZURE_OPENAI_API_KEY: ${AZURE_OPENAI_API_KEY}
+    ports:
+      - "5000:5000"
 volumes:
   db_data: 
