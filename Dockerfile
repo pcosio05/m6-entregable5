@@ -36,6 +36,7 @@ EXPOSE 5000
 ENV FLASK_APP=run.py \
     FLASK_ENV=production
 
-# CMD ["gunicorn", "--bind", "0.0.0.0:5000", "run:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "run:app"]
 # CMD ["python", "run.py"]
-CMD ["sleep", "360000"]
+# CMD ["sleep", "360000"]
+# gunicorn --bind 0.0.0.0:5000 run:app
