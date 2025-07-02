@@ -8,10 +8,10 @@
 4. [Container Image Storage](#container-image-storage)
 5. [Running the App with Docker Compose](#running-the-app-with-docker-compose)
 6. [Basic Tests to Ensure Functionality](#basic-tests-to-ensure-functionality)
-    - [1. Access the Web Interface](#1-access-the-web-interface)
-    - [2. Generate a New User Story](#2-generate-a-new-user-story)
-    - [3. Generate Tasks from a User Story](#3-generate-tasks-from-a-user-story)
-    - [4. View and Manage Tasks](#4-view-and-manage-tasks)
+    - [Access the Web Interface](#1-access-the-web-interface)
+    - [Generate a New User Story](#2-generate-a-new-user-story)
+    - [Generate Tasks from a User Story](#3-generate-tasks-from-a-user-story)
+    - [View and Manage Tasks](#4-view-and-manage-tasks)
 
 ## Introduction
 This is a Python application built with Flask that provides a task management system. It follows clean architecture principles and includes AI-powered features for generating user stories and tasks. The app is designed for easy deployment and reproducibility using Docker.
@@ -37,6 +37,12 @@ The Docker image is stored on Docker Hub under the repository:
 docker.io/pcosio05/m5-entregable4:<version>
 ```
 Replace `<version>` with the version specified in `pyproject.toml`.
+
+This is the public url for accesing to the repository:
+
+https://hub.docker.com/r/pcosio05/m5-entregable4
+
+![docker hub](docs/screen-6.png)
 
 ## Running the App with Docker Compose
 
