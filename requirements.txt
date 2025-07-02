@@ -6,3 +6,4 @@ openai>=1.0.0
 SQLAlchemy
 pymysql
 cryptography
+gunicorn

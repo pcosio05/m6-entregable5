@@ -17,6 +17,7 @@ services:
   m5-entregable4:
     image: pcosio05/m5-entregable4:0.0.2
     # platform: linux/amd64
+    # platform: linux/arm64
     restart: always
     env_file:
       - .env
