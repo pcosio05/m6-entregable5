@@ -30,6 +30,9 @@ A GitHub Actions workflow is set up to:
 Example about how the two pipeline steps (test + build&push) appears in Github. You can check this specific example [here](https://github.com/pcosio05/m5_entregable4/actions/runs/16031639105):
 ![github actions](docs/screen-5.png)
 
+Github action is configured with two secret variables for performing the image push to the repository:
+![github actions secrets](docs/screen-7.png)
+
 
 ## Container Image Storage
 The Docker image is stored on Docker Hub under the repository:
