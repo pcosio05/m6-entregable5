@@ -11,13 +11,8 @@ services:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
-#   alpine:
-#     image: alpine:latest
-#     command: sleep 36000
   m5-entregable4:
-    image: pcosio05/m5-entregable4:0.0.2
-    # platform: linux/amd64
-    # platform: linux/arm64
+    image: pcosio05/m5-entregable4:0.0.3
     restart: always
     env_file:
       - .env
