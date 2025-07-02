@@ -16,6 +16,7 @@ services:
 #     command: sleep 36000
   m5-entregable4:
     image: pcosio05/m5-entregable4:0.0.1
+    platform: linux/amd64
     restart: always
     environment:
       DATABASE_URL: ${DATABASE_URL}

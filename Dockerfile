@@ -36,4 +36,5 @@ EXPOSE 5000
 ENV FLASK_APP=run.py \
     FLASK_ENV=production
 
-CMD ["python", "run.py"]
+# CMD ["python", "run.py"]
+CMD ["sleep", "360000"]
