@@ -92,7 +92,7 @@ d0bc555415f1   pcosio05/m5-entregable4:0.0.3   "gunicorn --bind 0.0…"   10 min
 ### 3. Generate Tasks from a User Story
 1. From the user stories list, click "View Tasks" for any user story
 2. Click "Generate Tasks with AI" button
-3. The AI will analyze the user story and generate 3-5 development tasks
+3. The AI will analyze the user story and generate 3-6 development tasks
 4. All tasks will be automatically saved and linked to the user story
 
 ![generate tasks](docs/screen-3.png)
@@ -100,7 +100,6 @@ d0bc555415f1   pcosio05/m5-entregable4:0.0.3   "gunicorn --bind 0.0…"   10 min
 ### 4. View and Manage Tasks
 1. Navigate to any user story's tasks page
 2. View all generated tasks with their details
-3. Tasks include AI-generated risk analysis and mitigation strategies
 
 ![view tasks](docs/screen-4.png)
 
