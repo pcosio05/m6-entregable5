@@ -1,7 +1,22 @@
 # Task Management System (Python Flask)
 
+## Table of Contents
+
+1. [Introduction](#introduction)
+2. [Docker Packaging](#docker-packaging)
+3. [CI/CD Pipeline Configuration](#cicd-pipeline-configuration)
+4. [Container Image Storage](#container-image-storage)
+5. [Running the App with Docker Compose](#running-the-app-with-docker-compose)
+6. [Basic Tests to Ensure Functionality](#basic-tests-to-ensure-functionality)
+    - [1. Access the Web Interface](#1-access-the-web-interface)
+    - [2. Generate a New User Story](#2-generate-a-new-user-story)
+    - [3. Generate Tasks from a User Story](#3-generate-tasks-from-a-user-story)
+    - [4. View and Manage Tasks](#4-view-and-manage-tasks)
+
 ## Introduction
 This is a Python application built with Flask that provides a task management system. It follows clean architecture principles and includes AI-powered features for generating user stories and tasks. The app is designed for easy deployment and reproducibility using Docker.
+
+This is the Github repository for the project: https://github.com/pcosio05/m5_entregable4
 
 ## Docker Packaging
 The application is containerized using Docker. The Dockerfile builds a production-ready image with all dependencies installed, and uses Gunicorn as the WSGI server for optimal performance. Multi-architecture images (for both amd64 and arm64) are supported.
@@ -11,6 +26,10 @@ A GitHub Actions workflow is set up to:
 1. Run tests on every push or pull request to the `main` branch.
 2. If tests pass, build the Docker image for both `linux/amd64` and `linux/arm64` platforms.
 3. Push the built image to Docker Hub with a tag based on the version in `pyproject.toml`.
+
+Example about how the two pipeline steps (test + build&push) appears in Github. You can check this specific example [here](https://github.com/pcosio05/m5_entregable4/actions/runs/16031639105):
+![github actions](docs/screen-5.png)
+
 
 ## Container Image Storage
 The Docker image is stored on Docker Hub under the repository:
