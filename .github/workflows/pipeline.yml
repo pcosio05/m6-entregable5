@@ -35,6 +35,9 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
+    outputs:
+      name: ${{ steps.get_meta.outputs.name }}
+      version: ${{ steps.get_meta.outputs.version }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -48,6 +51,8 @@ jobs:
           pip install toml
           NAME=$(python -c "import toml; print(toml.load('pyproject.toml')['project']['name'])")
           VERSION=$(python -c "import toml; print(toml.load('pyproject.toml')['project']['version'])")
+          echo "name=$NAME" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "NAME=$NAME" >> $GITHUB_ENV
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
@@ -79,19 +84,10 @@ jobs:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-      
-      - name: Extract name and version from pyproject.toml
-        id: get_meta
-        run: |
-          pip install toml
-          NAME=$(python -c "import toml; print(toml.load('pyproject.toml')['project']['name'])")
-          VERSION=$(python -c "import toml; print(toml.load('pyproject.toml')['project']['version'])")
-          echo "NAME=$NAME" >> $GITHUB_ENV
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
 
       - name: Deploy to Azure Container Apps
         run: |
           az containerapp update \
             --name ${{ secrets.CONTAINERAPP_NAME }} \
             --resource-group ${{ secrets.RESOURCE_GROUP }} \
-            --image ${{ secrets.ACR_NAME }}.azurecr.io/${{ env.NAME }}:${{ env.VERSION }}
+            --image ${{ secrets.ACR_NAME }}.azurecr.io/${{ needs.build-and-push.outputs.name }}:${{ needs.build-and-push.outputs.version }}
