@@ -4,15 +4,17 @@ Index of steps that I have followed to prepare the Azure environment for allowin
 
 1. [Create Azure resource group](#azure-resource-group)
 2. [Create Azure Container Registry](#azure-container-registry)
-3. [Create Azure Container App environment](#azure-container-app-environment)
-4. [Create Azure Container App](#azure-container-app)
+3. [Create Azure Log Analytics Workspace](#create-log-analytics-workspace-for-aca-environment)
+3. [Create Azure Container App environment and link to Log Analytics workspace](#azure-container-app-environment)
+4. [Create Azure UAMI for ACA and grant AcrPull role to the UAMI](#create-uami-for-aca)
+4. [Create Azure Container App and associate to the UAMI and the ACR](#azure-container-app)
 5. [Create Azure Container App secrets and map to environment variables within the container](#azure-container-app-secrets)
 6. [Create Azure MySQL Database](#create-azure-mysql-database)
 7. [UAMI Container APP access to ACR](#assign-role-acrpull-to-the-uami-used-by-the-container-app)
 8. [Create UAMI (User Access Managed Identity) for Github connection](#uami)
 9. [Allow Github UAMI to get MS Entra access token authentication.](#allow-github-to-get-ms-entra-access-token-authentication)
 10. [Assign roles to Github UAMI for accesing to ACR and ACA.](#assign-roles-for-the-uami-acrpush-and-container-apps-contributor)
-11. [Attach log workspace to ACA](#logs)
+11. [Visualize application logs](#logs)
 
 
 ## Azure Resource Group
@@ -40,35 +42,92 @@ az acr create \
   --location $LOCATION \
   --admin-enabled false
 ```
+
+## Create log analytics workspace for ACA environment
+```sh
+WORKSPACE_NAME=workspace-module6-aca
+
+az monitor log-analytics workspace create \
+  --resource-group $RESOURCE_GROUP \
+  --workspace-name $WORKSPACE_NAME \
+  --location $LOCATION
+
+WORKSPACE_ID=$(az monitor log-analytics workspace show \
+  --resource-group $RESOURCE_GROUP \
+  --workspace-name $WORKSPACE_NAME \
+  --query customerId \
+  --output tsv)
+
+WORKSPACE_KEY=$(az monitor log-analytics workspace get-shared-keys \
+  --resource-group $RESOURCE_GROUP \
+  --workspace-name $WORKSPACE_NAME \
+  --query primarySharedKey \
+  --output tsv)
+```
+
 ## Azure Container App environment
 ```
-CONTAINERAPPS_ENV=aca-m6-env
+CONTAINERAPPS_ENV=aca-module6-env
 
 az provider register -n Microsoft.OperationalInsights --wait
 
 az containerapp env create \
   --name $CONTAINERAPPS_ENV \
   --resource-group $RESOURCE_GROUP \
-  --location $LOCATION
+  --location $LOCATION \
+  --logs-workspace-id $WORKSPACE_ID \
+  --logs-workspace-key $WORKSPACE_KEY \
+  --logs-destination log-analytics
+```
+
+## Create UAMI for ACA
+```sh
+UAMI_ACA_NAME=module6-aca-mi
+az identity create --name $UAMI_ACA_NAME --resource-group $RESOURCE_GROUP
+
+UAMI_ACA_PRINCIPAL_ID=$(az identity show \
+  --name $UAMI_ACA_NAME \
+  --resource-group $RESOURCE_GROUP \
+  --query principalId \
+  --output tsv)
+
+ACR_RESOURCE_ID=$(az acr show --name $ACR_NAME --resource-group $RESOURCE_GROUP --query id --output tsv)
+
+
+az role assignment create \
+  --assignee $UAMI_ACA_PRINCIPAL_ID \
+  --role AcrPull \
+  --scope $ACR_RESOURCE_ID
 ```
 
 ## Azure Container App
 ```
-CONTAINERAPP_NAME=aca-m6-flask
-DOCKER_IMAGE=mcr.microsoft.com/azuredocs/aks-helloworld:v1
+CONTAINERAPP_NAME=aca-module6-flask
+# PUBLIC_CONTAINER_IMAGE=mcr.microsoft.com/azuredocs/aks-helloworld:v1
+CONTAINER_IMAGE=acrmodule6.azurecr.io/m6-entregable5:0.0.1
+
+UAMI_ACA_ID=$(az identity show \
+  --name $UAMI_ACA_NAME \
+  --resource-group $RESOURCE_GROUP \
+  --query id \
+  --output tsv)
+
+ACR_REGISTRY_SERVER=$(az acr show --name $ACR_NAME --resource-group $RESOURCE_GROUP --query loginServer --output tsv)
 
 az containerapp create \
   --name $CONTAINERAPP_NAME \
   --resource-group $RESOURCE_GROUP \
   --environment $CONTAINERAPPS_ENV \
-  --image $DOCKER_IMAGE \
+  --image $CONTAINER_IMAGE \
   --ingress external \
-  --target-port 80 \
+  --target-port 5000 \
   --cpu 0.5 \
   --memory 1.0Gi \
   --min-replicas 1 \
   --max-replicas 1 \
-  --system-assigned
+  --user-assigned $UAMI_ACA_ID \
+  --registry-identity $UAMI_ACA_ID \
+  --registry-server $ACR_REGISTRY_SERVER
 ```
 
 ## Azure Container App secrets
@@ -92,24 +151,6 @@ az mysql flexible-server create \
   --public-access 0.0.0.0
 ```
 
-## assign role AcrPull to the UAMI used by the Container App
-
-```sh
-UAMI_ACA_PRINCIPAL_ID=$(az containerapp show \
-  --name $CONTAINERAPP_NAME \
-  --resource-group $RESOURCE_GROUP \
-  --query "identity.principalId" \
-  --output tsv)
-
-ACR_RESOURCE_ID=$(az acr show --name $ACR_NAME --resource-group $RESOURCE_GROUP --query id --output tsv)
-
-
-az role assignment create \
-  --assignee $UAMI_ACA_PRINCIPAL_ID \
-  --role AcrPull \
-  --scope $ACR_RESOURCE_ID
-
-```
 ### UAMI
 
 ```sh
@@ -155,23 +196,5 @@ az role assignment create \
 ```
 
 ## LOGS
-```sh
-WORKSPACE_ID=f4bf8af2-3cd4-4ccf-ab9d-947adda659a1
-WORKSPACE_NAME=workspace-module6rgjlBN
-
-WORKSPACE_KEY=$(az monitor log-analytics workspace get-shared-keys \
-  --resource-group $RESOURCE_GROUP \
-  --workspace-name $WORKSPACE_NAME \
-  --query primarySharedKey \
-  --output tsv)
-
-# Update the Container App environment to use this workspace
-az containerapp env update \
-  --name $CONTAINERAPPS_ENV \
-  --resource-group $RESOURCE_GROUP \
-  --logs-workspace-id $WORKSPACE_ID \
-  --logs-workspace-key $WORKSPACE_KEY \
-  --logs-destination log-analytics
-```
 ![Log Stream](./docs/aca-log-stream.png)
 ![Log Analytics](./docs/aca-log-analytics.png)
