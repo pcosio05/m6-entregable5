@@ -85,13 +85,6 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Debug Azure Context
-        run: |
-          echo "Current subscription:"
-          az account show --query "name" -o tsv
-          echo "Available Container Apps:"
-          az containerapp list --resource-group ${{ vars.RESOURCE_GROUP }} --subscription ${{ secrets.AZURE_SUBSCRIPTION_ID }} --query "[].name" -o tsv
-
       - name: Deploy to Azure Container Apps
         run: |
           az containerapp update \

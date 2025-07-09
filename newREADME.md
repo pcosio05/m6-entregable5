@@ -151,7 +151,7 @@ az mysql flexible-server create \
   --public-access 0.0.0.0
 ```
 
-### UAMI
+## UAMI
 
 ```sh
 UAMI_NAME=module6-github-action-mi
