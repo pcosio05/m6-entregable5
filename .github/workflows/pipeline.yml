@@ -72,7 +72,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.ACR_NAME }}.azurecr.io/${{ env.NAME }}:${{ env.VERSION }}
+          tags: ${{ vars.ACR_NAME }}.azurecr.io/${{ env.NAME }}:${{ env.VERSION }}
 
   deploy:
     needs: build-and-push
@@ -88,6 +88,6 @@ jobs:
       - name: Deploy to Azure Container Apps
         run: |
           az containerapp update \
-            --name ${{ secrets.CONTAINERAPP_NAME }} \
-            --resource-group ${{ secrets.RESOURCE_GROUP }} \
-            --image ${{ secrets.ACR_NAME }}.azurecr.io/${{ needs.build-and-push.outputs.name }}:${{ needs.build-and-push.outputs.version }}
+            --name ${{ vars.CONTAINERAPP_NAME }} \
+            --resource-group ${{ vars.RESOURCE_GROUP }} \
+            --image ${{ vars.ACR_NAME }}.azurecr.io/${{ needs.build-and-push.outputs.name }}:${{ needs.build-and-push.outputs.version }}
