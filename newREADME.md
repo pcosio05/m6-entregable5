@@ -175,7 +175,7 @@ UAMI_PRINCIPAL_ID=$(az identity show \
   --resource-group $RESOURCE_GROUP \
   --query principalId \
   --output tsv)
-RESOURCE_GROUP_ID="/subscriptions/$SUBSCRIPTION/resourceGroups/$RESOURCE_GROUP"
+RESOURCE_GROUP_ID="/subscriptions/$SUBSCRIPTION_ID/resourceGroups/$RESOURCE_GROUP"
 
 
 az role assignment create \
