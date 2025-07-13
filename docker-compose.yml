@@ -3,7 +3,7 @@ services:
     image: mysql:8.0
     restart: always
     environment:
-      MYSQL_DATABASE: entregable4
+      MYSQL_DATABASE: module6
       MYSQL_USER: user
       MYSQL_PASSWORD: password
       MYSQL_ROOT_PASSWORD: rootpassword
@@ -11,8 +11,8 @@ services:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
-  m5-entregable4:
-    image: pcosio05/m5-entregable4:0.0.3
+  app:
+    build: .
     restart: always
     env_file:
       - .env
