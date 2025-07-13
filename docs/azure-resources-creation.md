@@ -7,14 +7,12 @@ Index of steps that I have followed to prepare the Azure environment for allowin
 3. [Create Azure Log Analytics Workspace](#create-log-analytics-workspace-for-aca-environment)
 3. [Create Azure Container App environment and link to Log Analytics workspace](#azure-container-app-environment)
 4. [Create Azure UAMI for ACA and grant AcrPull role to the UAMI](#create-uami-for-aca)
-4. [Create Azure Container App and associate to the UAMI and the ACR](#azure-container-app)
+4. [Create Azure Container App instance and associate it to the UAMI and the ACR](#azure-container-app)
 5. [Create Azure Container App secrets and map to environment variables within the container](#azure-container-app-secrets)
 6. [Create Azure MySQL Database](#create-azure-mysql-database)
-7. [UAMI Container APP access to ACR](#assign-role-acrpull-to-the-uami-used-by-the-container-app)
-8. [Create UAMI (User Access Managed Identity) for Github connection](#uami)
-9. [Allow Github UAMI to get MS Entra access token authentication.](#allow-github-to-get-ms-entra-access-token-authentication)
-10. [Assign roles to Github UAMI for accesing to ACR and ACA.](#assign-roles-for-the-uami-acrpush-and-container-apps-contributor)
-11. [Visualize application logs](#logs)
+7. [Create UAMI (User Access Managed Identity) for Github connection](#uami)
+8. [Allow Github UAMI to get MS Entra access token authentication.](#allow-github-to-get-ms-entra-access-token-authentication)
+9. [Assign roles to Github UAMI for accesing to ACR and ACA.](#assign-roles-for-the-uami-acrpush-and-container-apps-contributor)
 
 
 ## Azure Resource Group
@@ -103,7 +101,6 @@ az role assignment create \
 ## Azure Container App
 ```
 CONTAINERAPP_NAME=aca-module6-flask
-# PUBLIC_CONTAINER_IMAGE=mcr.microsoft.com/azuredocs/aks-helloworld:v1
 CONTAINER_IMAGE=acrmodule6.azurecr.io/m6-entregable5:0.0.1
 
 UAMI_ACA_ID=$(az identity show \
@@ -195,6 +192,3 @@ az role assignment create \
   --scope $CONTAINERAPP_SCOPE_URI
 ```
 
-## LOGS
-![Log Stream](./docs/aca-log-stream.png)
-![Log Analytics](./docs/aca-log-analytics.png)

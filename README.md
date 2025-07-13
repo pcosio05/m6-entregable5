@@ -1,109 +1,131 @@
-# Task Management System (Python Flask)
+# Module 6 - Entregable 5
+### Task Management System (Python Flask)
 
 ## Table of Contents
 
-1. [Introduction](#introduction)
-2. [Docker Packaging](#docker-packaging)
-3. [CI/CD Pipeline Configuration](#cicd-pipeline-configuration)
-4. [Container Image Storage](#container-image-storage)
-5. [Running the App with Docker Compose](#running-the-app-with-docker-compose)
-6. [Basic Tests to Ensure Functionality](#basic-tests-to-ensure-functionality)
-    - [Access the Web Interface](#1-access-the-web-interface)
-    - [Generate a New User Story](#2-generate-a-new-user-story)
-    - [Generate Tasks from a User Story](#3-generate-tasks-from-a-user-story)
-    - [View and Manage Tasks](#4-view-and-manage-tasks)
+1. [Environment Set-up](#1-environment-set-up)
+2. [Containerization of the Application](#2-containerization-of-the-application)
+3. [Storage of Container Images in Azure Container Registry](#3-storage-of-container-images-in-azure-container-registry)
+4. [App Deployment (Azure Container Apps)](#4-app-deployment-azure-container-apps)
+5. [CI/CD Automation](#5-cicd-automation)
+6. [Application Observability](#6-application-observability)
 
-## Introduction
-This is a Python application built with Flask that provides a task management system. It follows clean architecture principles and includes AI-powered features for generating user stories and tasks. The app is designed for easy deployment and reproducibility using Docker.
+---
 
-This is the Github repository for the project: https://github.com/pcosio05/m5_entregable4
+## 1. Environment Set-up
 
-## Docker Packaging
-The application is containerized using Docker. The Dockerfile builds a production-ready image with all dependencies installed, and uses Gunicorn as the WSGI server for optimal performance. Multi-architecture images (for both amd64 and arm64) are supported.
+This project is designed to run in Azure using a variety of managed services. The following Azure resources are required and were created as part of the environment:
 
-## CI/CD Pipeline Configuration
-A GitHub Actions workflow is set up to:
-1. Run tests on every push or pull request to the `main` branch.
-2. If tests pass, build the Docker image for both `linux/amd64` and `linux/arm64` platforms.
-3. Push the built image to Docker Hub with a tag based on the version in `pyproject.toml`.
+- **Resource Group**: Logical container for all resources.
+- **Azure Container Registry (ACR)**: Stores container images.
+- **Log Analytics Workspace**: For collecting and analyzing logs.
+- **Azure Container Apps Environment**: Hosts the application containers.
+- **User Assigned Managed Identities (UAMI)**: For secure access to ACR and ACA.
+- **Azure Container App (ACA)**: Runs the Flask application.
+- **Azure MySQL Database**: Persistent database for the app.
 
-Example about how the two pipeline steps (test + build&push) appears in Github. You can check this specific example [here](https://github.com/pcosio05/m5_entregable4/actions/runs/16031639105):
-![github actions](docs/screen-5.png)
+Go [here](./docs/azure-resources-creation.md) for checking all the steps (with commands) that have been followed. 
 
-Github action is configured with two secret variables for performing the image push to the repository:
-![github actions secrets](docs/screen-7.png)
+---
 
+## 2. Containerization of the Application
 
-## Container Image Storage
-The Docker image is stored on Docker Hub under the repository:
-```
-docker.io/pcosio05/m5-entregable4:<version>
-```
-Replace `<version>` with the version specified in `pyproject.toml`.
+The application is fully containerized:
+- **Dockerfile**: Defines the build for the Flask app using Gunicorn for production.
+- **docker-compose.yml**: Orchestrates the Flask app and a MySQL database for local development/testing.
 
-This is the public url for accesing to the repository:
-
-https://hub.docker.com/r/pcosio05/m5-entregable4
-
-![docker hub](docs/screen-6.png)
-
-## Running the App with Docker Compose
-
-Docker compose stack contains two services:
-- mysql service
-- python flask application  
-
-Then, these are the steps to bootstrap the application:
-
-1. Ensure you have a `.env` file in the project root with the required variables. Database url value is already prepared for connecting to the Mysql server that is included in the docker-compose stack:
+### Local Bootstrap & Testing
+1. Ensure you have a `.env` file in the project root with the required variables (see example in previous README).
+2. Build and start the services:
+    ```sh
+    docker-compose up --build -d
     ```
-    DATABASE_URL=mysql+pymysql://user:password@mysql:3306/entregable4
-    AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
-    AZURE_OPENAI_API_KEY=your-azure-openai-api-key
+3. The app will be available at [http://localhost:5000/user-stories](http://localhost:5000/user-stories)
+4. To stop and remove containers:
+    ```sh
+    docker-compose down -v
     ```
-2. Start the services:
-    ```bash
-    docker-compose up -d
-    ```
-3. The app will be available at [http://localhost:5000](http://localhost:5000)
 
-4. Before testing the app, the containers should be up and running
+---
 
+## 3. Storage of Container Images in Azure Container Registry
+
+An Azure Container Registry (ACR) instance was created in the environment set-up (acrmodule6). This is used to store and distribute container images for deployment.
+
+### Example: Pushing and Pulling Images
+
+Login to ACR:
 ```sh
-$ docker ps -a
-CONTAINER ID   IMAGE                           COMMAND                  CREATED          STATUS          PORTS                               NAMES
-651003c5426e   mysql:8.0                       "docker-entrypoint.s…"   10 minutes ago   Up 10 minutes   0.0.0.0:3306->3306/tcp, 33060/tcp   m5_entregable4_pablo_cosio_molleda-mysql-1
-d0bc555415f1   pcosio05/m5-entregable4:0.0.3   "gunicorn --bind 0.0…"   10 minutes ago   Up 10 minutes   0.0.0.0:5000->5000/tcp              m5_entregable4_pablo_cosio_molleda-m5-entregable4-1
+az acr login --name acrmodule6
 ```
 
-## Basic Tests to Ensure Functionality
-### 1. Access the Web Interface
-1. Open your browser and go to `http://localhost:5000/user-stories`
-2. You'll see the user stories dashboard
+Build and tag your image:
+```sh
+docker build -t acrmodule6.azurecr.io/m6-entregable5:test .
+```
 
-![Welcome](docs/screen-0.png)
+Push the image to ACR:
+```sh
+docker push acrmodule6.azurecr.io/m6-entregable5:test
+```
 
-### 2. Generate a New User Story
-1. Click the "Generate User Story with AI" button
-2. Enter a natural language description of what you want to achieve
-3. The AI will generate a complete user story with all required fields
-4. The user story will be automatically saved to the database
+Pull the image from ACR:
+```sh
+docker pull acrmodule6.azurecr.io/m6-entregable5:test
+```
 
-![create user story](docs/screen-1.png)
-![user story created](docs/screen-2.png)
+---
 
-### 3. Generate Tasks from a User Story
-1. From the user stories list, click "View Tasks" for any user story
-2. Click "Generate Tasks with AI" button
-3. The AI will analyze the user story and generate 3-6 development tasks
-4. All tasks will be automatically saved and linked to the user story
+## 4. App Deployment (Azure Container Apps)
 
-![generate tasks](docs/screen-3.png)
+The application is deployed to Azure Container Apps (ACA):
+- The ACA instance is created and configured to pull images from ACR using a user-assigned managed identity.
+- The deployment is performed using the Azure CLI, referencing the image in ACR.
+- Secrets (such as environment variables and database credentials) are managed using ACA secrets, which can be set via the Azure CLI or scripts.
 
-### 4. View and Manage Tasks
-1. Navigate to any user story's tasks page
-2. View all generated tasks with their details
 
-![view tasks](docs/screen-4.png)
+
+---
+
+## 5. CI/CD Automation
+
+A GitHub Actions workflow is provided in `.github/workflows/`:
+- On every push or pull request to `main`, tests are run using pytest.
+- If tests pass, a Docker image is built and pushed to ACR. The name and tag of the container are taken from this [file](pyproject.toml).
+- The last step consist on updating the image of the Azure Container App instance with the previous built image
+
+The workflow uses GitHub secrets and variables for authentication and secure access to Azure resources.
+  - secrets
+  ![secrets](./docs/github-secrets.png)
+  - variables
+  ![variables](./docs/github-variables.png)
+
+You can view one execution of the pipeline and check the three commented steps that are performed within the pipeline:
+![pipeline](./docs/github-action-execution.png)
+
+---
+
+## 6. Application Observability
+
+### Viewing Logs
+- The application running in ACA sends logs to the configured Log Analytics workspace.
+- You can view logs in different ways:
+  - stream logs directly using az cli: 
+        
+        az containerapp logs show --name aca-module6-flask --resource-group module6-rg --follow  
+  - From Azure Portal, using Log Analytics:
+  ![Log Analytics](./docs/aca-log-analytics.png)
+  - From Azure Portal, using Log Streams:
+  ![Log Streams](./docs/aca-log-stream.png)
+
+
+### Testing and Observing Requests
+- Make a request to your deployed app (e.g., using curl or your browser):
+    ```sh
+    curl https://aca-module6-flask.nicesea-c3f325e6.spaincentral.azurecontainerapps.io//user-stories
+    ```
+- Then, check the logs as above to see the request and application output.
+
+---
 
 For more details on endpoints and features, see the source code and comments in the `app/` directory. 

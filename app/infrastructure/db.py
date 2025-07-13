@@ -15,11 +15,13 @@ if DATABASE_URL is None:
     print("Error: DATABASE_URL environment variable is not set")
     sys.exit(1)
 
-if not DATABASE_URL.endswith('?'):
-    DATABASE_URL += '?'
-else:
-    DATABASE_URL += '&'
-DATABASE_URL += f"ssl_ca={SSL_CA}&ssl_verify_cert=true"
+# Only add SSL_CA if using Azure MySQL
+if ".mysql.database.azure" in DATABASE_URL:
+    if not DATABASE_URL.endswith('?'):
+        DATABASE_URL += '?'
+    else:
+        DATABASE_URL += '&'
+    DATABASE_URL += f"ssl_ca={SSL_CA}&ssl_verify_cert=true"
 
 engine = create_engine(DATABASE_URL, echo=True)
 # Create all tables including the new user_stories table
