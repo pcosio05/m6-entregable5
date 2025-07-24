@@ -54,7 +54,7 @@ jobs:
   build-and-push:
     needs: test
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: always()
     outputs:
       name: ${{ steps.get_meta.outputs.name }}
       version: ${{ steps.get_meta.outputs.version }}
